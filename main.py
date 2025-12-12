@@ -40,10 +40,9 @@ def output_windows():
         print(f'{key}: {value}')
 
 def get_in_file():
-    f = open('C:/test/test_file.txt', 'w', encoding='utf-8')
-    for key, value in output.items():
-        f.write(f'{key}: {value}\n')
-    f.close()
+    with open('C:/test/test_file.txt', 'w', encoding='utf-8') as file:
+        for key, value in output.items():
+            file.write(f'{key}: {value}\n')
 
 if __name__ == '__main__':
     main()
