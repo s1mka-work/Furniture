@@ -18,7 +18,7 @@ def list_windows(count):
         try:
             height = int(input('Введите высоту окна: '))
             width = int(input('Введите ширину окна: '))
-            window = Window(height, width)
+            window = TurnWindow(height, width)
         except (ValueError, OutOfRangeException):
             print('Ошибка! Введите число от 280 до 2400')
             continue
@@ -36,8 +36,8 @@ def dict_windows():
                 output[key] = output[key] + value
 
 def output_windows():
-    for key, value in output.items():
-        print(f'{key}: {value}')
+    Output.create_structure(output)
+    Output.output_structure()
 
 def get_in_file():
     with open('C:/test/test_file.txt', 'w', encoding='utf-8') as file:
