@@ -6,7 +6,7 @@ def main():
     list_windows(count_windows())
     dict_windows()
     output_windows()
-    get_in_file()
+    print(Output.output_rule)
 
 def count_windows():
     count = int(input('Введите количество окон: '))
@@ -16,14 +16,21 @@ def list_windows(count):
     counter = 0
     while counter < count:
         try:
+            window_type = input('Введите тип окна: ')
             height = int(input('Введите высоту окна: '))
             width = int(input('Введите ширину окна: '))
-            window = TurnWindow(height, width)
-        except (ValueError, OutOfRangeException):
+        except (ValueError, HeightOutOfRangeException):
             print('Ошибка! Введите число от 280 до 2400')
             continue
+        except (ValueError, WidthOutOfRangeException):
+            print('Ошибка! Введите число от 280 до 1300')
         else:
-            windows.append(window)
+            if window_type.lower() == 'поворотное':
+                window = TurnWindow(height, width)
+                windows.append(window)
+            elif window_type.lower() == 'фрамуга':
+                window = TransomWindow(height, width)
+                windows.append(window)
             counter += 1
 
 def dict_windows():
@@ -38,11 +45,6 @@ def dict_windows():
 def output_windows():
     Output.create_structure(output)
     Output.output_structure()
-
-def get_in_file():
-    with open('C:/test/test_file.txt', 'w', encoding='utf-8') as file:
-        for key, value in output.items():
-            file.write(f'{key}: {value}\n')
 
 if __name__ == '__main__':
     main()

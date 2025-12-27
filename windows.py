@@ -1,4 +1,10 @@
-class OutOfRangeException(Exception):
+class NoncorrectInputException(Exception):
+    def __init__(self, value):
+        self.value = value
+class HeightOutOfRangeException(Exception):
+    def __init__(self, value):
+        self.value = value
+class WidthOutOfRangeException(Exception):
     def __init__(self, value):
         self.value = value
 
@@ -12,39 +18,53 @@ class Window:
         return self._height
     @height.setter
     def height(self, value):
-        if 280 <= value <= 2400:
+        if value > 0:
             self._height = value
         else:
-            raise OutOfRangeException(value)
+            raise NoncorrectInputException(value)
 
     @property
     def width(self):
         return self._width
     @width.setter
     def width(self, value):
-        if 0 < value <= 1300:
+        if value > 0:
             self._width = value
         else:
-            raise OutOfRangeException(value)
+            raise NoncorrectInputException(value)
 
     def get_elements(self):
         pass
 
 class TurnWindow(Window):
+    def __init__(self, height, width):
+        super().__init__(height, width)
+
+    @Window.height.setter
+    def height(self, value):
+        if not 280 <= value <= 2400:
+            raise HeightOutOfRangeException(value)
+        super(TurnWindow, TurnWindow).height.fset(self, value)
+    @Window.width.setter
+    def width(self, value):
+        if not 280 <= value <= 1300:
+            raise WidthOutOfRangeException(value)
+        super(TurnWindow, TurnWindow).width.fset(self, value)
+
     def get_elements(self):
         result = {}
-        base = BaseElements.get_base_elements()
+        base = TurnWindowBaseElements.get_base_elements()
 
         if self.width <= 700:
-            height_items = HeightManager.get_height(self.height)
+            height_items = TurnWindowHeightManager.get_height(self.height)
             for key, value in height_items.items():
                 if key not in result:
                     result[key] = value
                 else:
                     result[key] = result[key] + value
         elif self.width > 700:
-            height_items = WidthManager.get_height_if_width(self.height)
-            width_items = WidthManager.get_width(self.width)
+            height_items = TurnWindowWidthManager.get_height(self.height)
+            width_items = TurnWindowWidthManager.get_width(self.width)
             for key, value in height_items.items():
                 if key not in result:
                     result[key] = value
@@ -63,17 +83,21 @@ class TurnWindow(Window):
                 result[key] = result[key] + value
         return result
 
-class BaseElements:
+class TurnWindowBaseElements:
     @staticmethod
     def get_base_elements():
         return {
-            'Петлевая группа': 1,
+            'ВР': 1,
+            'ШВП': 1,
+            'ВС': 1,
+            'НР': 1,
+            'НС': 1,
             'Комплект декоративных накладок': 1,
             'Оконная ручка': 1
         }
 
-class HeightManager:
-    rules = [
+class TurnWindowHeightManager:
+    turn_window_height_rules = [
         {
             'min': 280,
             'max': 400,
@@ -176,13 +200,13 @@ class HeightManager:
     ]
     @staticmethod
     def get_height(height):
-        for rule in HeightManager.rules:
+        for rule in TurnWindowHeightManager.turn_window_height_rules:
             if rule['min'] <= height <= rule['max']:
                 return rule['elements']
         return {}
 
-class WidthManager:
-    height_rule = [
+class TurnWindowWidthManager:
+    turn_window_width_rules = [
         {
             'min': 500,
             'max': 800,
@@ -233,8 +257,8 @@ class WidthManager:
         }
     ]
     @staticmethod
-    def get_height_if_width(height):
-        for rule in WidthManager.height_rule:
+    def get_height(height):
+        for rule in TurnWindowWidthManager.turn_window_width_rules:
             if rule['min'] <= height <= rule['max']:
                 return rule['elements']
         return {}
@@ -265,7 +289,230 @@ class WidthManager:
     ]
     @staticmethod
     def get_width(width):
-        for rule in WidthManager.width_rule:
+        for rule in TurnWindowWidthManager.width_rule:
+            if rule['min'] <= width <= rule['max']:
+                return rule['elements']
+        return {}
+
+class TransomWindow(Window):
+    def __init__(self, height, width):
+        super().__init__(height, width)
+
+    @Window.height.setter
+    def height(self, value):
+        if 280 <= value <= 1300:
+            super(TransomWindow, TransomWindow).height.fset(self, value)
+        else:
+            raise HeightOutOfRangeException(value)
+    @Window.width.setter
+    def width(self, value):
+        if 280 <= value <= 2400:
+            super(TransomWindow, TransomWindow).width.fset(self, value)
+        else:
+            raise WidthOutOfRangeException(value)
+
+    def get_elements(self):
+        result = {}
+        base = TransomWindowBaseElements.get_base_elements()
+        width_items = TransomWindowWidthManager.get_width(self.width)
+        for key, value in width_items.items():
+            if key not in result:
+                result[key] = value
+            else:
+                result[key] = result[key] + value
+
+        for key, value in base.items():
+            if key not in result:
+                result[key] = value
+            else:
+                result[key] = result[key] + value
+        return result
+
+class TransomWindowBaseElements:
+    @staticmethod
+    def get_base_elements():
+        return {
+            'ВР': 2,
+            'ШВП': 2,
+            'ВС': 2,
+            'ФП': 2,
+            'КДНВ': 2,
+            'ФН': 2,
+            'Оконная ручка': 1
+        }
+
+class TransomWindowWidthManager:
+    transom_window_width_rules = [
+        {
+            'min': 280,
+            'max': 400,
+            'elements': {
+                'ПР 1': 1,
+                'Ответка': 2,
+                'СП': 0,
+                'ВР': 0,
+                'ШВП': 0,
+                'ВС': 0,
+                'ФП': 0,
+                'КДНВ': 0,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 401,
+            'max': 600,
+            'elements': {
+                'ПР 2': 1,
+                'Ответка': 2,
+                'СП': 0,
+                'ВР': 0,
+                'ШВП': 0,
+                'ВС': 0,
+                'ФП': 0,
+                'КДНВ': 0,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 601,
+            'max': 800,
+            'elements': {
+                'ПР 3': 1,
+                'Ответка': 2,
+                'СП': 1,
+                'ВР': 0,
+                'ШВП': 0,
+                'ВС': 0,
+                'ФП': 0,
+                'КДНВ': 0,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 801,
+            'max': 1000,
+            'elements': {
+                'ПР 4': 1,
+                'Ответка': 3,
+                'СП': 1,
+                'ВР': 0,
+                'ШВП': 0,
+                'ВС': 0,
+                'ФП': 0,
+                'КДНВ': 0,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 1001,
+            'max': 1200,
+            'elements': {
+                'ПР 5': 1,
+                'Ответка': 3,
+                'СП': 0,
+                'ВР': 1,
+                'ШВП': 1,
+                'ВС': 1,
+                'ФП': 1,
+                'КДНВ': 1,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 1201,
+            'max': 1400,
+            'elements': {
+                'ПР 6': 1,
+                'Ответка': 3,
+                'СП': 0,
+                'ВР': 1,
+                'ШВП': 1,
+                'ВС': 1,
+                'ФП': 1,
+                'КДНВ': 1,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 1401,
+            'max': 1600,
+            'elements': {
+                'ПР 7': 1,
+                'Ответка': 3,
+                'СП': 2,
+                'ВР': 1,
+                'ШВП': 1,
+                'ВС': 1,
+                'ФП': 1,
+                'КДНВ': 1,
+                'ФН': 0
+            }
+        },
+        {
+            'min': 1601,
+            'max': 1800,
+            'elements': {
+                'ПР 8': 1,
+                'Ответка': 3,
+                'СП': 0,
+                'ВР': 2,
+                'ШВП': 2,
+                'ВС': 2,
+                'ФП': 2,
+                'КДНВ': 2,
+                'ФН': 1
+            }
+        },
+        {
+            'min': 1801,
+            'max': 2000,
+            'elements': {
+                'ПР 9': 1,
+                'Ответка': 4,
+                'СП': 0,
+                'ВР': 2,
+                'ШВП': 2,
+                'ВС': 2,
+                'ФП': 2,
+                'КДНВ': 2,
+                'ФН': 1
+            }
+        },
+        {
+            'min': 2001,
+            'max': 2200,
+            'elements': {
+                'ПР 10': 1,
+                'Ответка': 4,
+                'СП': 0,
+                'ВР': 3,
+                'ШВП': 3,
+                'ВС': 3,
+                'ФП': 3,
+                'КДНВ': 3,
+                'ФН': 1
+            }
+        },
+        {
+            'min': 2201,
+            'max': 2400,
+            'elements': {
+                'ПР 11': 1,
+                'Ответка': 4,
+                'СП': 0,
+                'ВР': 3,
+                'ШВП': 3,
+                'ВС': 3,
+                'ФП': 3,
+                'КДНВ': 3,
+                'ФН': 2
+            }
+        }
+    ]
+
+    @staticmethod
+    def get_width(width):
+        for rule in TransomWindowWidthManager.transom_window_width_rules:
             if rule['min'] <= width <= rule['max']:
                 return rule['elements']
         return {}
@@ -274,15 +521,21 @@ class Catalog:
     catalog_rule = {
         'Приводы': ['ПР 1', 'ПР 2', 'ПР 3', 'ПР 4', 'ПР 5', 'ПР 6', 'ПР 7', 'ПР 8', 'ПР 9', 'ПР 10', 'ПР 11',
                     'ПОП 1', 'ПОП 2', 'ПОП 3', 'ПОП 4', 'ПОП 5', 'ПОП 6'],
-        'Вспомогательные элементы': ['УП 1', 'УП 2', 'ВШ 90', 'НЗ', 'НП', 'Ответка', 'СП'],
-        'База': ['Петлевая группа', 'Комплект декоративных накладок', 'Оконная ручка']
+        'Вспомогательные элементы': ['УП 1', 'УП 2', 'ВШ 90', 'НЗ', 'НП', 'Ответка', 'СП', 'ФН'],
+        'База': [{'Петлевая группа': ['ВР', 'ШВП', 'ВС', 'ФП', 'КДНВ', 'НР', 'НС']}, 'Комплект декоративных накладок', 'Оконная ручка']
     }
     @staticmethod
     def get_category(element):
         for rule, value in Catalog.catalog_rule.items():
-            if element in value:
-                return rule
-        return None
+            for item in value:
+                if isinstance(item, str):
+                    if element == item:
+                        return rule
+                elif isinstance(item, dict):
+                    for key, el in item.items():
+                        if element in el:
+                            return rule
+        return {}
 
 class Output:
     output_rule = {
